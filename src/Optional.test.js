@@ -19,6 +19,11 @@ describe('OptionalTests', ()=>{
 
   test('propertyAccess', ()=>{
     expect(Optional(obj1).getOrElse("name","lostName1")).toBe("obj1");
+    expect(Optional(obj1).getOrElse(" name","lostName1")).toBe("obj1");
+    expect(Optional(obj1).getOrElse("name ","lostName1")).toBe("obj1");
+    expect(Optional(obj1).getOrElse(".name ","lostName1")).toBe("obj1");
+    expect(Optional(obj1).getOrElse("['name'] ","lostName1")).toBe("obj1");
+
     expect(Optional(obj1).getOrElse("name",()=>"lostName1")).toBe("obj1");
     expect(Optional(obj1).getOrElse("obj2.name","lost")).toBe("obj2");
     expect(Optional(obj1).getOrElse("obj3.name","lost")).toBe("obj3");
@@ -29,6 +34,9 @@ describe('OptionalTests', ()=>{
     expect(Optional(obj1).getOrElse("obj3.array[1]","lost")).toBe("item2");
     expect(Optional(obj1).getOrElse("obj3.array[2][0]","lost")).toBe("item3");
     expect(Optional(obj1).getOrElse("obj3.array[3]","none")).toBe("none");
+    expect(Optional(obj1).get("obj3.array").getOrElse("[0]","none")).toBe("item1");
+
+    expect(Optional(obj1).getOrElse("obj3.array.3","none")).toBe("none");
 
     expect(Optional(obj1).get("obj3.array[-1]").unwrapping()).toBe(undefined);
     expect(Optional(obj1).get("obj3.array[0]").unwrapping()).toBe("item1");
@@ -135,6 +143,22 @@ describe('OptionalTests', ()=>{
     expect(()=>Optional([1,2,3,4,5]).getOrElse(true,"")).toThrow(Error)
 
   });
+
+  test('optional wrapping is single wrap', ()=>{
+
+    const wrap = Optional([1,2,3,4,5])
+    const wrapWrap = Optional(Optional([1,2,3,4,5]))
+    expect(wrapWrap).toStrictEqual(wrap)
+
+  });
+
+  test('optional wrapping is single wrap', ()=>{
+
+    expect(Optional([1,2,3,4,5]).getOrElse("","none")).toStrictEqual([1,2,3,4,5])
+    expect(Optional([1,2,3,4,5]).getOrElse(" ","none")).toStrictEqual([1,2,3,4,5])
+
+  });
+
 
 
 });
