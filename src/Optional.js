@@ -15,7 +15,7 @@ const defaultOption = {
 const Optional = (any,option={})=>{
 
     if(isOptional(any)){
-        return Optional(any.unwrapping(),this.option)
+        return Optional(any.unwrapping(),option)
     }
     
     
