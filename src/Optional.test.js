@@ -23,6 +23,10 @@ describe('OptionalTests', ()=>{
     expect(Optional(obj1).getOrElse("name ","lostName1")).toBe("obj1");
     expect(Optional(obj1).getOrElse(".name ","lostName1")).toBe("obj1");
     expect(Optional(obj1).getOrElse("['name'] ","lostName1")).toBe("obj1");
+    expect(Optional(obj1).getOrElse("name.replace('obj','@@@')","lostName1")).toBe("@@@1");
+    expect(Optional(obj1).getOrElse("name.replace_____('obj','@@@')","lostName1")).toBe("lostName1");
+    expect(Optional(obj1).get("name","lostName1").map((any)=>any.replace('obj','@@@'))).toStrictEqual(Optional("@@@1"));
+    expect(Optional(obj1).get("name____").map((any)=>any.replace('obj','@@@'))).toStrictEqual(Optional(undefined));
 
     expect(Optional(obj1).getOrElse("name",()=>"lostName1")).toBe("obj1");
     expect(Optional(obj1).getOrElse("obj2.name","lost")).toBe("obj2");
@@ -132,13 +136,14 @@ describe('OptionalTests', ()=>{
     let clone = JSON.parse(JSON.stringify(obj30))
 
     Optional(obj30).get("obj21.obj22").map((obj22)=>obj22.name)
+    const _ = [...Optional(obj30)]
     expect(obj30).toStrictEqual(clone)
   });
 
   test('illegal_args', ()=>{
 
     expect(()=>Optional([1,2,3,4,5]).getOrElse(1,"")).toThrow(Error)
-    expect(()=>Optional([1,2,3,4,5]).getOrElse(["a"],"")).toThrow(Error)
+    expect(()=>Optional([1,2,3,4,5]).getOrElse(["[0]"],"")).toThrow(Error)
     expect(()=>Optional([1,2,3,4,5]).getOrElse({a:1},"")).toThrow(Error)
     expect(()=>Optional([1,2,3,4,5]).getOrElse(true,"")).toThrow(Error)
 
@@ -156,6 +161,21 @@ describe('OptionalTests', ()=>{
 
     expect(Optional([1,2,3,4,5]).getOrElse("","none")).toStrictEqual([1,2,3,4,5])
     expect(Optional([1,2,3,4,5]).getOrElse(" ","none")).toStrictEqual([1,2,3,4,5])
+
+  });
+
+
+  test('omake', ()=>{
+
+    const NumberOptional = (any) => {
+      return Optional(any,{
+        unSafeItems:[
+          (any)=>!(typeof any === "number" && isFinite(any))
+        ]
+      })
+    }
+
+    expect([...NumberOptional([1,2,3,4,5,"6",null,undefined,Number.NaN,"7",8,9])]).toStrictEqual([1,2,3,4,5,8,9])
 
   });
 

@@ -7,6 +7,31 @@
     -------------|---------|----------|---------|---------|-------------------
 
     coverage 100%!!
+# demo
+    const obj = {
+        a:[1,2,{a:"aa"}],
+        b:{a:"ba",b:undefined}
+    }
+
+    Optional(obj).getOrElse("a[0]","none") // 1
+    Optional(obj).getOrElse("a[1]","none") // 2
+    Optional(obj).getOrElse("a[2]","none") // {a:"aa"}
+    Optional(obj).getOrElse("a[2].a","none") // "aa"
+    Optional(obj).getOrElse("b.b","none") // "none"
+
+    Optional(obj).getOrElse("a[3]","none") // "none"
+    Optional(obj).getOrElse("a[3]",(obj)=>"none") // "none"
+
+    const array = [
+        1,2,3,undefined,NaN,null,4,5
+    ]
+
+    [...Optional(array)].join("") // "12345"
+
+    for(const safeItem og Optional(array)){
+        console.log(safeItem) // 1 2 3 4 5
+    }
+
 # document
     @see src/Optional.test.js
 
