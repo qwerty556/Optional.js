@@ -28,7 +28,17 @@
 
     [...Optional(array)].join("") // "12345"
 
-    for(const safeItem og Optional(array)){
+    for(const safeItem of Optional(array)){
+        console.log(safeItem) // 1 2 3 4 5
+    }
+
+    const obj2 = {
+        a:1,b:2,c:3,d:undefined,e:NaN,f:null,g:4,i:5
+    }
+
+    [...Optional(obj2)].join("") // "12345"
+
+    for(const safeItem of Optional(obj2)){
         console.log(safeItem) // 1 2 3 4 5
     }
 
