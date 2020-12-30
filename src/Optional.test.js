@@ -18,39 +18,44 @@ describe('OptionalTests', ()=>{
   }
 
   test('propertyAccess', ()=>{
-    expect(Optional(obj1).getOrElse("name","lostName1")).toBe("obj1");
-    expect(Optional(obj1).getOrElse(" name","lostName1")).toBe("obj1");
+    //obj1.name equivalent
+    expect(Optional(obj1).getOrElse("name","lostName1")).toBe("obj1"); 
+    expect(Optional(obj1).getOrElse(" name","lostName1")).toBe("obj1"); 
     expect(Optional(obj1).getOrElse("name ","lostName1")).toBe("obj1");
     expect(Optional(obj1).getOrElse(".name ","lostName1")).toBe("obj1");
     expect(Optional(obj1).getOrElse("['name'] ","lostName1")).toBe("obj1");
+
+    //obj1.name.replace('obj','@@@')
     expect(Optional(obj1).getOrElse("name.replace('obj','@@@')","lostName1")).toBe("@@@1");
-    expect(Optional(obj1).getOrElse("name.replace_____('obj','@@@')","lostName1")).toBe("lostName1");
-
     expect(Optional(obj1).get("name.replace('obj','@@@')")).toStrictEqual(Optional("@@@1"));
-    expect(()=>Optional(obj1).get("name").map((any)=>any.replace_____('obj','@@@'))).toThrow(Error)
 
+    //undefined value access
+    expect(Optional(obj1).getOrElse("name.replace_____('obj','@@@')","lostName1")).toBe("lostName1");
+    expect(()=>Optional(obj1).get("name").map((any)=>any.replace_____('obj','@@@'))).toThrow(Error)
     expect(Optional(obj1).get("name____.replace('obj','@@@')")).toStrictEqual(Optional(undefined))
     expect(Optional(obj1).get("name____").map((any)=>any.replace('obj','@@@'))).toStrictEqual(Optional(undefined))
     
-
+    //else can use function
     expect(Optional(obj1).getOrElse("name",()=>"lostName1")).toBe("obj1");
+
+    // get arg1 is ""
+    expect(Optional(obj1).get("").unwrapping()).toStrictEqual(obj1);
+    expect(Optional(obj1).getOrElse("","lostObj1").unwrapping()).toStrictEqual(obj1);
+
+    // other test
     expect(Optional(obj1).getOrElse("obj2.name","lost")).toBe("obj2");
     expect(Optional(obj1).getOrElse("obj3.name","lost")).toBe("obj3");
     expect(Optional(obj1).getOrElse("obj2.obj4.name","lost")).toBe("obj4");
-
     expect(Optional(obj1).getOrElse("obj3.array[-1]","none")).toBe("none");
     expect(Optional(obj1).getOrElse("obj3.array[0]","lost")).toBe("item1");
     expect(Optional(obj1).getOrElse("obj3.array[1]","lost")).toBe("item2");
     expect(Optional(obj1).getOrElse("obj3.array[2][0]","lost")).toBe("item3");
     expect(Optional(obj1).getOrElse("obj3.array[3]","none")).toBe("none");
     expect(Optional(obj1).get("obj3.array").getOrElse("[0]","none")).toBe("item1");
-
     expect(Optional(obj1).getOrElse("obj3.array.3","none")).toBe("none");
-
     expect(Optional(obj1).get("obj3.array[-1]").unwrapping()).toBe(undefined);
     expect(Optional(obj1).get("obj3.array[0]").unwrapping()).toBe("item1");
-
-    expect(Optional(obj1).get("","lostObj1").unwrapping()).toStrictEqual(obj1);
+    
   });
 
   test('get', ()=>{
