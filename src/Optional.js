@@ -89,8 +89,6 @@ const Optional = (any,option={})=>{
             if(dept <= 0 || this.isUnSafe() || [...this].every((any)=> !isArray(any) && !isIteratableObject(any))){
                 return Optional(this)
             }
-
-            console.log("flat "+dept)
             
             const newItems =  [...this].map((any)=>{
                 if (isIteratableObject(any)){
