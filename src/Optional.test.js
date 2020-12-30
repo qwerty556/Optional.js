@@ -25,8 +25,13 @@ describe('OptionalTests', ()=>{
     expect(Optional(obj1).getOrElse("['name'] ","lostName1")).toBe("obj1");
     expect(Optional(obj1).getOrElse("name.replace('obj','@@@')","lostName1")).toBe("@@@1");
     expect(Optional(obj1).getOrElse("name.replace_____('obj','@@@')","lostName1")).toBe("lostName1");
-    expect(Optional(obj1).get("name","lostName1").map((any)=>any.replace('obj','@@@'))).toStrictEqual(Optional("@@@1"));
-    expect(Optional(obj1).get("name____").map((any)=>any.replace('obj','@@@'))).toStrictEqual(Optional(undefined));
+
+    expect(Optional(obj1).get("name.replace('obj','@@@')")).toStrictEqual(Optional("@@@1"));
+    expect(()=>Optional(obj1).get("name").map((any)=>any.replace_____('obj','@@@'))).toThrow(Error)
+
+    expect(Optional(obj1).get("name____.replace('obj','@@@')")).toStrictEqual(Optional(undefined))
+    expect(Optional(obj1).get("name____").map((any)=>any.replace('obj','@@@'))).toStrictEqual(Optional(undefined))
+    
 
     expect(Optional(obj1).getOrElse("name",()=>"lostName1")).toBe("obj1");
     expect(Optional(obj1).getOrElse("obj2.name","lost")).toBe("obj2");
@@ -87,6 +92,11 @@ describe('OptionalTests', ()=>{
   });
 
   test('unsafeItems override', ()=>{
+    let array0 = [1,2,3,undefined,null,NaN,4,5,7,7]
+    let op0 = Optional(array0)
+    //excepted default
+    expect([...op0]).toStrictEqual([1,2,3,4,5,7,7])
+
     let array1 = [1,2,3,undefined,null,NaN,4,5,7,7]
     let op1 = Optional(array1,{
       unSafeItems:[1,2,3,(any)=>any===7]
@@ -97,8 +107,12 @@ describe('OptionalTests', ()=>{
 
     let array2 = [1,2,3,undefined,null,NaN,4,5,7]
     let op2 = Optional(array2,{
-      unSafeItems:[1,2,3,(any)=>any===7] 
-        .concat(Optional().unSafeItems()) 
+      unSafeItems:[
+        ...Optional().unSafeItems(), // default unSafeItems
+        1,2,3,
+        (any)=>any===7
+        
+      ]
     })
 
     //excepted 1,2,3,7,undefined,null,NaN
@@ -140,7 +154,7 @@ describe('OptionalTests', ()=>{
     expect(obj30).toStrictEqual(clone)
   });
 
-  test('illegal_args', ()=>{
+  test('illegal args', ()=>{
 
     expect(()=>Optional([1,2,3,4,5]).getOrElse(1,"")).toThrow(Error)
     expect(()=>Optional([1,2,3,4,5]).getOrElse(["[0]"],"")).toThrow(Error)
@@ -151,28 +165,25 @@ describe('OptionalTests', ()=>{
 
   test('optional wrapping is single wrap', ()=>{
 
-    const wrap = Optional([1,2,3,4,5])
-    const wrapWrap = Optional(Optional([1,2,3,4,5]))
-    expect(wrapWrap).toStrictEqual(wrap)
+    let op = Optional([1,2,3,4,5])
+
+    let i = 100
+    while(i-- > 0)
+      op = Optional(op)
+
+    expect(op).toStrictEqual(Optional([1,2,3,4,5]))
 
   });
 
-  test('optional wrapping is single wrap', ()=>{
 
-    expect(Optional([1,2,3,4,5]).getOrElse("","none")).toStrictEqual([1,2,3,4,5])
-    expect(Optional([1,2,3,4,5]).getOrElse(" ","none")).toStrictEqual([1,2,3,4,5])
+  test('defaultOptionSetting', ()=>{
 
-  });
-
-
-  test('omake', ()=>{
-
-    const NumberOptional = (any) => {
-      return Optional(any,{
+    const NumberOptional = (any,option) => {
+      return Optional(any,Object.assign({},{
         unSafeItems:[
           (any)=>!(typeof any === "number" && isFinite(any))
         ]
-      })
+      },option))
     }
 
     expect([...NumberOptional([1,2,3,4,5,"6",null,undefined,Number.NaN,"7",8,9])]).toStrictEqual([1,2,3,4,5,8,9])
@@ -180,6 +191,43 @@ describe('OptionalTests', ()=>{
   });
 
 
+  test('methodAlias', ()=>{
+
+    const op = (any,option) => {
+      return Optional(any,Object.assign({},{
+        methodAlias:{
+          hoge:"getOrElse" // hoge is getOrElse
+        }
+      },option))
+    }
+
+    expect(op([[{a:11}]]).hoge("[0][0].a","none")).toBe(11)
+    
+  });
+
+  test('flat', ()=>{
+
+    const obj = [
+      {x:undefined,a:1,b:2,c:{
+        x:null,a:3,b:4,e:{
+          a:5,b:[6,7,Number.NaN]
+        }
+      }}
+    ]
+    
+    expect(JSON.stringify(Optional(obj).flat())).toBe("[1,2,{\"x\":null,\"a\":3,\"b\":4,\"e\":{\"a\":5,\"b\":[6,7,null]}}]")  
+    expect(JSON.stringify(Optional(obj).flat(1))).toBe("[1,2,{\"x\":null,\"a\":3,\"b\":4,\"e\":{\"a\":5,\"b\":[6,7,null]}}]")  
+
+    expect(JSON.stringify(Optional(obj).flat(2))).toBe("[1,2,3,4,{\"a\":5,\"b\":[6,7,null]}]")  
+
+    expect(JSON.stringify(Optional(obj).flat(3))).toBe("[1,2,3,4,5,[6,7,null]]")  
+
+    expect(JSON.stringify(Optional(obj).flat(4))).toBe("[1,2,3,4,5,6,7]")  
+    expect(JSON.stringify(Optional(obj).flat(5))).toBe("[1,2,3,4,5,6,7]") 
+    expect(JSON.stringify(Optional(obj).flat(Infinity))).toBe("[1,2,3,4,5,6,7]") 
+
+        
+  });
 
 });
 

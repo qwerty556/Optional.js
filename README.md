@@ -45,7 +45,11 @@
 # document
     @see src/Optional.test.js
 
+# npm
+    coming soon
+
 # test run
+    git clone {this} 
     npm install
     npm test
 
