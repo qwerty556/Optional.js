@@ -22,6 +22,19 @@
     Optional(obj).getOrElse("a[3]","none") // "none"
     Optional(obj).getOrElse("a[3]",(obj)=>"none") // "none"
 
+
+    const user = {
+        name:"uma",
+        action:{
+            login:()=>"login_proc"
+        }
+    }
+
+    Optional(user).getOrElse("action.login()","none") // "login_proc"
+    Optional(user).getOrElse("action.logout()","none") // "none"
+
+
+
     const array = [
         1,2,3,undefined,NaN,null,4,5
     ]
