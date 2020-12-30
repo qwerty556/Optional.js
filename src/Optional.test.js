@@ -108,12 +108,11 @@ describe('OptionalTests', ()=>{
     let array2 = [1,2,3,undefined,null,NaN,4,5,7]
     let op2 = Optional(array2,{
       unSafeItems:[
-        ...Optional().unSafeItems(), // default unSafeItems
         1,2,3,
         (any)=>any===7
         
       ]
-    })
+    }).extends(Optional()) // default option extends    extends(Optional()) or extends()
 
     //excepted 1,2,3,7,undefined,null,NaN
     expect([...op2]).toStrictEqual([4,5])
@@ -253,6 +252,72 @@ describe('OptionalTests', ()=>{
 
         
   });
+
+  test('option extends unSafeItems', ()=>{
+
+    const op1 = Optional([1,2,3,4,5,undefined,NaN,null],{
+      unSafeItems:[
+        1
+      ]
+    })
+
+    //expected 1
+    expect([...op1]).toStrictEqual([2,3,4,5,undefined,NaN,null])
+
+    const op2 = Optional([1,2,3,4,5,undefined,NaN,null],{
+      unSafeItems:[
+        1
+      ]
+    }).extends() // extends default option
+
+    //expected 1
+    expect([...op2]).toStrictEqual([2,3,4,5])
+
+
+    const op3 = Optional([1,2,3,4,5,undefined,NaN,null],{
+      unSafeItems:[
+        5
+      ]
+    }).extends(op2) // extends op2
+
+    //expected 1
+    expect([...op3]).toStrictEqual([2,3,4])
+    
+  });
+
+  test('option extends methodAlias', ()=>{
+
+    const op1 = Optional([1,2,3,4,5,undefined,NaN,null],{
+      methodAlias:{
+        "hoge":()=>1
+      }
+    })
+
+    expect(op1.hoge()).toBe(1)
+
+    const op2 = Optional([1,2,3,4,5,undefined,NaN,null],{
+      methodAlias:{
+        "hoge":()=>2
+      }
+    }).extends(op1)
+
+    expect(op2.hoge()).toBe(2) // priority  option of arg > extends
+
+    const op3 = Optional([1,2,3,4,5,undefined,NaN,null]).extends(op1).extends(op2)
+    expect(op3.hoge()).toBe(1) // priority  option of arg > extends op1 > extends op2
+    
+  });
+
+  test('option extends illegal arg', ()=>{
+
+    expect(()=>Optional([1]).extends("hogr")).toThrow(Error)
+    expect(()=>Optional([1]).extends(1)).toThrow(Error)
+    expect(()=>Optional([1]).extends(null)).toThrow(Error)
+    expect(()=>Optional([1]).extends({a:1})).toThrow(Error)
+    expect(()=>Optional([1]).extends([1])).toThrow(Error)
+    
+  });
+
 
 });
 
