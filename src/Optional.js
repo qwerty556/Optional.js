@@ -112,7 +112,7 @@ const Optional = (any,option={})=>{
 
         if(typeof funcName === "function"){
             const func = funcName
-            optionalObject[alias] = function(){return func(optionalObject)}
+            optionalObject[alias] = ()=>func(optionalObject)
         }
 
         if(typeof optionalObject[funcName] === "function"){
