@@ -202,6 +202,31 @@ describe('OptionalTests', ()=>{
     }
 
     expect(op([[{a:11}]]).hoge("[0][0].a","none")).toBe(11)
+
+    //can't use an existing name
+    const op2 = (any,option) => {
+      return Optional(any,Object.assign({},{
+        methodAlias:{
+          "getOrElse":()=>"bad"
+        }
+      },option))
+    }
+
+    expect(()=>op2([1,2,3])).toThrow(Error)
+
+    //custom function
+    //Oh.. It's not alias........🐎
+    const opHasCustomFunc = (any,option) => {
+      return Optional(any,Object.assign({},{
+        methodAlias:{
+          "hoge":(op)=>op.getOrElse("[1]","none"),
+          "hoge2":function(op){return op.getOrElse("[2]","none")}
+        }
+      },option))
+    }
+
+    expect(opHasCustomFunc([10,20,30]).hoge()).toBe(20)
+    expect(opHasCustomFunc([10,20,30]).hoge2()).toBe(30)
     
   });
 

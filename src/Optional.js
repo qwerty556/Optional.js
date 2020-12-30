@@ -104,14 +104,15 @@ const Optional = (any,option={})=>{
     }
 
     //AliasSetter
-    Object.entries(optionalObject.option.methodAlias).forEach(([alias,funcName]=entr)=>{
+    Object.entries(optionalObject.option.methodAlias).forEach(([alias,funcName] = entr)=>{
+
         if(optionalObject[alias] !== undefined){
             throw Error(alias + " is cant use alias name")
         }
 
         if(typeof funcName === "function"){
             const func = funcName
-            optionalObject[alias] = func
+            optionalObject[alias] = function(){return func(optionalObject)}
         }
 
         if(typeof optionalObject[funcName] === "function"){
