@@ -96,15 +96,34 @@ const Optional = (any,option={})=>{
                 }else
                     return any 
             }).flat(1)
+
             return Optional(newItems,this.option).flat(dept-1)
         },
         toJSON(){
             return [...this]
+        },
+        extends(optional){
+
+            if(optional !== undefined && !isOptional(optional)){
+                throw Error("none arg or Optional")
+            }
+
+            const option = optional === undefined ? defaultOption : optional.option
+                
+            Object.entries(option).forEach(([name,val])=>{
+                if(isArray(val)){
+                    this.option[name] = this.option[name].concat(val)
+                }else{
+                    this.option[name] = Object.assign({},val,this.option[name])
+                }
+            })
+
+            return Optional(this)
         }
     }
 
     //AliasSetter
-    Object.entries(optionalObject.option.methodAlias).forEach(([alias,funcName] = entr)=>{
+    Object.entries(optionalObject.option.methodAlias).forEach(([alias,funcName])=>{
 
         if(optionalObject[alias] !== undefined){
             throw Error(alias + " is cant use alias name")
@@ -140,7 +159,7 @@ const Optional = (any,option={})=>{
                 if(Optional(val,optionalObject.option).isUnSafe()){
                     return this.next()
                 }
-                
+
                 return {done:false,value:val}
             }
         }
