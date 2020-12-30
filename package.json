@@ -5,7 +5,7 @@
   "main": "src/Optional.js",
   "scripts": {
     "prepublish": "npm bin",
-    "test": "jest"
+    "test": "jest --collect-coverage"
   },
   "repository": {
     "type": "git",
