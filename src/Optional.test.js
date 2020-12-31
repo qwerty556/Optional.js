@@ -275,7 +275,7 @@ describe('OptionalTests', ()=>{
       ]
     }).extends() // extends default option
 
-    //expected 1
+    //expected 1,undefined,NaN,null
     expect([...op2]).toStrictEqual([2,3,4,5])
 
 
@@ -285,7 +285,7 @@ describe('OptionalTests', ()=>{
       ]
     }).extends(op2) // extends op2
 
-    //expected 1
+    //expected 1,5,,undefined,NaN,null
     expect([...op3]).toStrictEqual([2,3,4])
     
   });
@@ -308,8 +308,14 @@ describe('OptionalTests', ()=>{
 
     expect(op2.hoge()).toBe(2) // priority  option of arg > extends
 
-    const op3 = Optional([1,2,3,4,5,undefined,NaN,null]).extends(op1).extends(op2)
-    expect(op3.hoge()).toBe(1) // priority  option of arg > extends op1 > extends op2
+    const op3 = Optional([1,2,3,4,5,undefined,NaN,null],{
+      methodAlias:{
+        "hoge":()=>3
+      }
+    })
+
+    const op4 = Optional([1,2,3,4,5,undefined,NaN,null]).extends(op1).extends(op3)
+    expect(op4.hoge()).toBe(1) // priority  option of arg > extends op1 > extends op3
     
   });
 
