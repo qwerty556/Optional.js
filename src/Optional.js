@@ -18,7 +18,7 @@ const defaultOption = {
 const Optional = (any,option={})=>{
 
     if(isOptional(any)){
-        return Optional(any.unwrapping(),Object.assign(any.option,option))
+        return Optional(any.unwrapping(),Object.assign({},any.option,option))
     }
     
     
@@ -66,8 +66,8 @@ const Optional = (any,option={})=>{
         isUnSafe(){
             return this.unSafeItems().some((any)=>{
                 return typeof any === "function" 
-                    ? any(this.obj)
-                    :any === this.obj
+                    ? any(this.unwrapping())
+                    :any === this.unwrapping()
             })
         },
         unSafeItems(){
@@ -144,9 +144,9 @@ const Optional = (any,option={})=>{
     //iterator
     optionalObject[Symbol.iterator] = function(){
         const values = 
-            isArray(optionalObject.obj) ? optionalObject.obj:
-            isIteratableObject(optionalObject.obj) ? Object.values(optionalObject.obj)
-            :[optionalObject.obj]
+            isArray(optionalObject.unwrapping()) ? optionalObject.unwrapping():
+            isIteratableObject(optionalObject.unwrapping()) ? Object.values(optionalObject.unwrapping())
+            :[optionalObject.unwrapping()]
 
         return {
             values:values.slice() ,
