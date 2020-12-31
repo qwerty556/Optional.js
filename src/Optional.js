@@ -17,7 +17,7 @@ const defaultOption = {
 
 const optionalObject = {
     ______typeToken:______typeToken,
-    obj:undefined,
+    item:undefined,
     option:{},
     getOrElse(_propNames,_elseVal){
         const item = this.get(_propNames)
@@ -51,7 +51,7 @@ const optionalObject = {
         }
     },
     unwrapping(){
-        return this.obj
+        return this.item
     },
     isSafe(){
         return !this.isUnSafe()
@@ -69,7 +69,7 @@ const optionalObject = {
     
     /**
      * 
-     * @param {function(obj):any} mapper 
+     * @param {function(item):any} mapper 
      * @returns {Optional[any]}
      */
     map(mapper){
@@ -146,7 +146,7 @@ const Optional = (any,option={})=>{
     }
     
     const op = Object.assign({},optionalObject,{
-        obj:any,
+        item:any,
         option:Object.assign({},defaultOption,option)
     })
     
