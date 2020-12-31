@@ -3,7 +3,7 @@
 
 const ______typeToken = "Optional|awmcl,apqk,ujtnujmrpfuawiqto3jj49j3urjfrfv4j94rh 39ef893ir9qo2eqi2jkro3krto3jkofjuefjowhwfr83i10o2kei3eiqqlxajr8dia3jtpg4ajg84h"
 const isOptional = any=>(typeof any === "object") && (any??{______typeToken:""}).______typeToken === ______typeToken
-const isIteratableObject = (any) => typeof any === "object" && any !== undefined && any !== null && (!Array.isArray(any) && Object.values(any).length > 0)
+const isIteratableObject = (any) => typeof any === "object" && any !== null && !Array.isArray(any) && Object.values(any).length > 0
 const isArray = (any) => Array.isArray(any)
 
 const defaultOption = {
@@ -120,7 +120,7 @@ const optionalObject = {
             :[this.unwrapping()]
 
         return {
-            values:values.slice() ,
+            values:values.slice(),
             option:this.option,
             next() {
                 if(this.values.length === 0){
@@ -159,7 +159,7 @@ const Optional = (any,option={})=>{
 
         if(typeof funcName === "function"){
             const func = funcName
-            op[alias] = ()=>func(op)
+            op[alias] = ()=>func(op,...arguments)
         }
 
         if(typeof op[funcName] === "function"){
