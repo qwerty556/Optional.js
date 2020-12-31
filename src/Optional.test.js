@@ -40,7 +40,7 @@ describe('OptionalTests', ()=>{
 
     // get arg1 is ""
     expect(Optional(obj1).get("").unwrapping()).toStrictEqual(obj1);
-    expect(Optional(obj1).getOrElse("","lostObj1").unwrapping()).toStrictEqual(obj1);
+    expect(Optional(obj1).getOrElse("","lostObj1")).toStrictEqual(obj1);
 
     // other test
     expect(Optional(obj1).getOrElse("obj2.name","lost")).toBe("obj2");
