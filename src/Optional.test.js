@@ -330,7 +330,32 @@ describe('OptionalTests', ()=>{
     
   });
 
+  test('objectToArrayLogic', ()=>{
 
+    let obj = {
+      a:1,
+      b:2
+    }
+
+    let op = Optional(obj)
+    expect([...op]).toStrictEqual([1,2]) //default is Object.values
+
+    op = Optional(obj,{
+      objectToArray:Object.values
+    })
+    expect([...op]).toStrictEqual([1,2])
+
+    op = Optional(obj,{
+      objectToArray:Object.keys
+    })
+    expect([...op]).toStrictEqual(["a","b"])
+
+    op = Optional(obj,{
+      objectToArray:Object.entries
+    })
+    expect([...op]).toStrictEqual([["a",1],["b",2]])
+    
+  });
 });
 
 
