@@ -93,7 +93,9 @@ describe('OptionalTests', ()=>{
     }
     expect([...Optional(obj10)]).toStrictEqual([1,2,{g:undefined,h:3},4])
 
+    // other than array and object are not iteratable
     expect([...Optional("unIteratable")]).toStrictEqual(["unIteratable"])
+    expect([...Optional(1)]).toStrictEqual([1])
   });
 
   test('unsafeItems override', ()=>{
@@ -231,7 +233,6 @@ describe('OptionalTests', ()=>{
 
     expect(opHasCustomFunc([10,20,30]).hoge()).toBe(20)
     expect(opHasCustomFunc([10,20,30]).hoge2()).toBe(30)
-    
   });
 
   test('flat', ()=>{
@@ -329,7 +330,32 @@ describe('OptionalTests', ()=>{
     
   });
 
+  test('objectToArrayLogic', ()=>{
 
+    let obj = {
+      a:1,
+      b:2
+    }
+
+    let op = Optional(obj)
+    expect([...op]).toStrictEqual([1,2]) //default is Object.values
+
+    op = Optional(obj,{
+      objectToArray:Object.values
+    })
+    expect([...op]).toStrictEqual([1,2])
+
+    op = Optional(obj,{
+      objectToArray:Object.keys
+    })
+    expect([...op]).toStrictEqual(["a","b"])
+
+    op = Optional(obj,{
+      objectToArray:Object.entries
+    })
+    expect([...op]).toStrictEqual([["a",1],["b",2]])
+    
+  });
 });
 
 
