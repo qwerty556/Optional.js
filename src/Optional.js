@@ -2,171 +2,191 @@
 
 
 const ______typeToken = "Optional|awmcl,apqk,ujtnujmrpfuawiqto3jj49j3urjfrfv4j94rh 39ef893ir9qo2eqi2jkro3krto3jkofjuefjowhwfr83i10o2kei3eiqqlxajr8dia3jtpg4ajg84h"
-const isOptional = any=>(typeof any === "object") && (any??{______typeToken:""}).______typeToken === ______typeToken
-const isArray = (any) => Array.isArray(any)
+const isOptional = any => (typeof any === "object") && (any ?? { ______typeToken: "" }).______typeToken === ______typeToken
 
 const defaultOption = {
-    unSafeItems:[
+    unSafeItems: [
         undefined,
         null,
         Number.isNaN,
     ],
-    methodAlias:{},
-    objectToArray:Object.values,
-    isIteratableObject:(any) => typeof any === "object" && any !== null && !Array.isArray(any) && Object.values(any).length > 0
+    methodAlias: {},
+    objectToArray: Object.values,
+    isIteratableObject: (any) => typeof any === "object" && any !== null && !Array.isArray(any) && Object.values(any).length > 0,
+    isArray:(any) => Array.isArray(any)
 }
 
-const Optional = (any,_option={})=>{
+const Optional = (any, _option = {}) => {
 
-    if(isOptional(any)){
-        return Optional(any.unwrapping(),Object.assign({},any.option,_option))
+    if (isOptional(any)) {
+        const _optional = any
+        return _optional.clone()
     }
 
-    const option = Object.assign({},defaultOption,_option)
+    const option = Object.assign({}, defaultOption, _option)
 
+    //helpers
     const objectToArray = option.objectToArray
     const isIteratableObject = option.isIteratableObject
+    const isArray = option.isArray
 
 
     const op = {
-        ______typeToken:______typeToken,
-        item:any,
-        option:option,
-        getOrElse(_propNames,_elseVal){
+        ______typeToken: ______typeToken,
+        item: any,
+        option: option,
+        getOrElse(_propNames, _elseVal) {
             const item = this.get(_propNames)
-            if(item.isUnSafe()){
-                return typeof _elseVal === "function" 
-                    ? _elseVal(this.unwrapping(),Object.assign({},this.option)) 
+            if (item.isUnSafe()) {
+                return typeof _elseVal === "function"
+                    ? _elseVal(this.unwrapping(), Object.assign({}, this.option))
                     : _elseVal
             }
-            
+
             return item.unwrapping()
         },
-        get(_propNames){
-    
-            if(typeof _propNames !== "string"){
+        getOrFail(_propNames) {
+            return item.getOrElse(_propNames,()=>{throw new TypeError()})
+        },
+        get(_propNames) {
+
+            if (typeof _propNames !== "string") {
                 throw new Error("_propNames is string")
             }
-    
-            if(_propNames === "" ){
-                return Optional(this)
+
+            if (_propNames === "") {
+                return this.clone()
             }
-    
-            const propNames = 
-                _propNames[0] === "[" ? _propNames : 
-                _propNames[0] === "." ? _propNames : 
-                "." + _propNames
-    
+
+            const propNames = (()=>{
+                if(_propNames[0] === "[") return _propNames
+                if(_propNames[0] === ".") return _propNames
+                else return "." + _propNames
+            })()
+
+
             try {
-                return Optional(eval("this.unwrapping()" + propNames),this.option)
+                return Optional(eval("this.unwrapping()" + propNames), this.option)
             } catch (error) {
-                return Optional(undefined,this.option)
+                return Optional(undefined, this.option)
             }
         },
-        unwrapping(){
+        unwrapping() {
             return this.item
         },
-        isSafe(){
+        isSafe() {
             return !this.isUnSafe()
         },
-        isUnSafe(){
-            return this.unSafeItems().some((any)=>{
-                return typeof any === "function" 
-                    ? any(this.unwrapping())
-                    :any === this.unwrapping()
+        isUnSafe() {
+            return this.option.unSafeItems.some((any) => {
+                return (
+                    typeof any === "function"
+                        ? any(this.unwrapping())
+                        : any === this.unwrapping()
+                )
             })
         },
-        unSafeItems(){
-            return [...this.option.unSafeItems]
+        clone() {
+            return Optional(this.item, this.option)
         },
-        
+
         /**
-         * 
          * @param {function(item):any} mapper 
          * @returns {Optional[any]}
          */
-        map(mapper){
-            if(this.isSafe())
-                return Optional(mapper(this.unwrapping()),this.option)
-            else 
-                return Optional(this)
+        map(mapper) {
+            if (this.isSafe())
+                return Optional(mapper(this.unwrapping()), this.option)
+            else
+                return this.clone()
         },
-        flat(dept=1){
-            if(dept <= 0 || this.isUnSafe() || [...this].every((any)=> !isArray(any) && !isIteratableObject(any))){
-                return Optional(this)
+        /**
+         * @param {function(item):any|void} mapper 
+         * @returns
+         */
+        ifPresents(consumer) {
+            this.map(consumer)
+        },
+        flat(dept = 1) {
+            if (dept <= 0 || this.isUnSafe() || [...this].every((any) => !isArray(any) && !isIteratableObject(any))) {
+                return this.clone()
             }
-            
-            const newItems =  [...this].map((any)=>{
-                if (isIteratableObject(any)){
+
+            const newItems = [...this].map((any) => {
+                if (isIteratableObject(any)) {
                     return objectToArray(any)
-                }else
-                    return any 
+                } else
+                    return any
             }).flat(1)
-    
-            return Optional(newItems,this.option).flat(dept-1)
+
+            return Optional(newItems, this.option).flat(dept - 1)
         },
-        toJSON(){
+        toJSON() {
             return [...this]
         },
-        extends(optional){
-    
-            if(optional !== undefined && !isOptional(optional)){
+        extends(optional) {
+
+            if (optional !== undefined && !isOptional(optional)) {
                 throw Error("none arg or Optional")
             }
-    
+
             const option = optional === undefined ? defaultOption : optional.option
-                
-            Object.entries(option).forEach(([name,val])=>{
-                if(isArray(val)){
-                    this.option[name] = this.option[name].concat(val)
-                }else{
-                    this.option[name] = Object.assign({},val,this.option[name])
+
+            const clone = this.clone()
+
+            Object.entries(option).forEach(([name, val]) => {
+                if (isArray(val)) {
+                    clone.option[name] = clone.option[name].concat(val)
+                } else {
+                    clone.option[name] = Object.assign({}, val, clone.option[name])
                 }
             })
-    
-            return Optional(this)
+
+            return clone
         },
-        [Symbol.iterator]:function(){
-            const values = 
-                isArray(this.unwrapping()) ? this.unwrapping():
-                isIteratableObject(this.unwrapping()) ? objectToArray(this.unwrapping())
-                :[this.unwrapping()]
-    
+        [Symbol.iterator]: function () {
+            const values = (()=>{
+                if(isArray(this.unwrapping())) return this.unwrapping()
+                if(isIteratableObject(this.unwrapping())) return objectToArray(this.unwrapping())
+                else return [this.unwrapping()]
+            })()
+
             return {
-                values:values.slice(),
-                option:this.option,
+                values: values.slice(),
+                option: this.option,
                 next() {
-                    if(this.values.length === 0){
-                        return {done:true}
+                    if (this.values.length === 0) {
+                        return { done: true }
                     }
-    
+
                     const val = this.values.shift()
-                    if(Optional(val,this.option).isUnSafe()){
+                    if (Optional(val, this.option).isUnSafe()) {
                         return this.next()
                     }
-    
-                    return {done:false,value:val}
+
+                    return { done: false, value: val }
                 }
             }
         }
     }
-    
-    //AliasSetter
-    Object.entries(op.option.methodAlias).forEach(([alias,funcName])=>{
 
-        if(op[alias] !== undefined){
+    //AliasSetter
+    Object.entries(op.option.methodAlias).forEach(([alias, funcName]) => {
+
+        if (op[alias] !== undefined) {
             throw Error(alias + " is cant use alias name")
         }
 
-        if(typeof funcName === "function"){
+        else if (typeof funcName === "function") {
             const func = funcName
-            op[alias] = ()=>func(op,...arguments)
+            op[alias] = () => func(op, ...arguments)
         }
 
-        if(typeof op[funcName] === "function"){
+        else if (typeof op[funcName] === "function") {
             const func = op[funcName]
             op[alias] = func
         }
+        
     })
 
     return op

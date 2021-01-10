@@ -71,6 +71,11 @@ describe('OptionalTests', ()=>{
     expect(Optional(obj1).getOrElse("undefinedProperty",(obj1)=>Optional(obj1).get("obj2.name").unwrapping())).toBe("obj2");
   });
 
+  test('getOrFail', ()=>{
+    expect(Optional(obj1).getOrFail("name")).toBe("obj1");
+    expect(()=>Optional(obj1).getOrFail("undefinedProperty")).toThrow(TypeError);
+  });
+
   //iterator is safe , auto except danger values
   test('safeIterator', ()=>{
     let array1 = [1,2,3,undefined,null,NaN,4,5,7]
@@ -126,7 +131,7 @@ describe('OptionalTests', ()=>{
     
   });
 
-  test('map', ()=>{
+  test('map ifPresents', ()=>{
     let obj20 = {
       name:"obj20",
       obj21:{
@@ -136,8 +141,23 @@ describe('OptionalTests', ()=>{
         }
       }
     }
+
+    //map  Apply map only when safe
     expect(Optional(obj20).map((obj20)=>obj20.name)).toStrictEqual(Optional("obj20"))
     expect(Optional(obj20).map((obj20)=>obj20.name).map((obj20Name)=>obj20Name+"5555")).toStrictEqual(Optional("obj205555"))
+
+    //ifPresents  Apply presents only when safe
+    //honestly speaking backward compatible with map
+    //use properly to express the idea of ​​programmer
+    let res1 = false
+    Optional(obj20).ifPresents((undef)=>res1=true)
+    expect(res1).toBe(true) // ifPresents  not Applyed
+    expect(res1).toBe(true) // ifPresents  Applyed
+
+    let res2 = false
+    Optional(undefined).ifPresents((undef)=>res2=true)
+    expect(res2).toBe(false) // ifPresents not Applyed
+
   });
 
   test('base object does not change', ()=>{
