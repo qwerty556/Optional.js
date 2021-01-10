@@ -46,7 +46,7 @@ const Optional = (any, _option = {}) => {
             return item.unwrapping()
         },
         getOrFail(_propNames) {
-            return item.getOrElse(_propNames,()=>{throw new TypeError()})
+            return this.getOrElse(_propNames,()=>{throw new TypeError()})
         },
         get(_propNames) {
 
@@ -177,12 +177,12 @@ const Optional = (any, _option = {}) => {
             throw Error(alias + " is cant use alias name")
         }
 
-        else if (typeof funcName === "function") {
+        if (typeof funcName === "function") {
             const func = funcName
             op[alias] = () => func(op, ...arguments)
         }
 
-        else if (typeof op[funcName] === "function") {
+        if (typeof op[funcName] === "function") {
             const func = op[funcName]
             op[alias] = func
         }

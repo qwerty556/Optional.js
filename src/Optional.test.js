@@ -240,6 +240,17 @@ describe('OptionalTests', ()=>{
 
     expect(()=>op2([1,2,3])).toThrow(Error)
 
+    //can't use an existing name
+    const op3 = (any,option) => {
+      return Optional(any,Object.assign({},{
+        methodAlias:{
+          "hoge":"getOrElse___" //undefined method name
+        }
+      },option))
+    }
+
+    expect(()=>op2([1,2,3])).toThrow(Error)
+
     //custom function
     //Oh.. It's not alias........🐎
     const opHasCustomFunc = (any,option) => {
