@@ -43,7 +43,7 @@ const Optional = (_any, _option = {}) => {
                     : _elseVal
             }
 
-            return item.unwrapping()
+            return optional.unwrapping()
         },
         getOrFail(_propNames) {
             return this.getOrElse(_propNames,()=>{throw new TypeError()})
