@@ -13,14 +13,14 @@ const defaultOption = {
     methodAlias: {},
     objectToArray: Object.values,
     isIteratableObject: (any) => typeof any === "object" && any !== null && !Array.isArray(any) && Object.values(any).length > 0,
-    isArray:(any) => Array.isArray(any)
+    isArray:Array.isArray
 }
 
-const Optional = (any, _option = {}) => {
+const Optional = (_any, _option = {}) => {
 
-    if (isOptional(any)) {
-        const _optional = any
-        return _optional.clone()
+    if (isOptional(_any)) {
+        const optional = _any
+        return optional.clone()
     }
 
     const option = Object.assign({}, defaultOption, _option)
@@ -33,11 +33,11 @@ const Optional = (any, _option = {}) => {
 
     const op = {
         ______typeToken: ______typeToken,
-        item: any,
+        item: _any,
         option: option,
         getOrElse(_propNames, _elseVal) {
-            const item = this.get(_propNames)
-            if (item.isUnSafe()) {
+            const optional = this.get(_propNames)
+            if (optional.isUnSafe()) {
                 return typeof _elseVal === "function"
                     ? _elseVal(this.unwrapping(), Object.assign({}, this.option))
                     : _elseVal
@@ -51,7 +51,7 @@ const Optional = (any, _option = {}) => {
         get(_propNames) {
 
             if (typeof _propNames !== "string") {
-                throw new Error("_propNames is string")
+                throw new Error("_propNames must be string")
             }
 
             if (_propNames === "") {
@@ -101,8 +101,8 @@ const Optional = (any, _option = {}) => {
                 return this.clone()
         },
         /**
-         * @param {function(item):any|void} mapper 
-         * @returns
+         * @param {function(item):any|void} consumer 
+         * @returns {none}
          */
         ifPresents(consumer) {
             this.map(consumer)
