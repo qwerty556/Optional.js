@@ -332,7 +332,6 @@ describe('OptionalTests', ()=>{
     expect([...op5]).toStrictEqual(["a","b","c"])
 
     const op6 = Optional({a:1,b:2,c:3},).extends(op4)
-    console.log([...op6],op6.option)
     expect([...op6]).toStrictEqual([["a",1],["b",2],["c",3]])
     
     
