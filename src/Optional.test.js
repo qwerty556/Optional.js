@@ -319,6 +319,22 @@ describe('OptionalTests', ()=>{
 
     //expected 1,5,,undefined,NaN,null
     expect([...op3]).toStrictEqual([2,3,4])
+
+
+    const op4 = Optional({a:1,b:2,c:3},{
+      objectToArray:Object.entries
+    })
+    expect([...op4]).toStrictEqual([["a",1],["b",2],["c",3]])
+
+    const op5 = Optional({a:1,b:2,c:3},{
+      objectToArray:Object.keys
+    }).extends(op4)
+    expect([...op5]).toStrictEqual(["a","b","c"])
+
+    const op6 = Optional({a:1,b:2,c:3},).extends(op4)
+    console.log([...op6],op6.option)
+    expect([...op6]).toStrictEqual([["a",1],["b",2],["c",3]])
+    
     
   });
 
@@ -330,7 +346,7 @@ describe('OptionalTests', ()=>{
       }
     })
 
-    expect(op1.hoge()).toBe(1)
+   expect(op1.hoge()).toBe(1)
 
     const op2 = Optional([1,2,3,4,5,undefined,NaN,null],{
       methodAlias:{
@@ -338,7 +354,7 @@ describe('OptionalTests', ()=>{
       }
     }).extends(op1)
 
-    expect(op2.hoge()).toBe(2) // priority  option of arg > extends
+   expect(op2.hoge()).toBe(2) // priority  option of arg > extends
 
     const op3 = Optional([1,2,3,4,5,undefined,NaN,null],{
       methodAlias:{
