@@ -129,20 +129,32 @@ const Optional = (_any, _option = {}) => {
             if (optional !== undefined && !isOptional(optional)) {
                 throw Error("none arg or Optional")
             }
+            
+            const options = [
+                defaultOption,
+                optional !== undefined ? optional.option : {},
+                _option
+            ]
 
-            const option = optional === undefined ? defaultOption : optional.option
+            const option = options.reduce((mergedOp,op)=>{
+                Object.entries(op).forEach(([name, val]) => {
+                    if (isArray(val)) {
+                        mergedOp[name] = val.concat(mergedOp[name]??[])
+                    } else if(typeof val === "object") {
+                        mergedOp[name] = Object.assign(mergedOp[name]??{}, val)
+                    }else{
+                        mergedOp[name] = val
+                    }
+                })
+                return mergedOp
+            },{})
 
-            const clone = this.clone()
-
-            Object.entries(option).forEach(([name, val]) => {
-                if (isArray(val)) {
-                    clone.option[name] = clone.option[name].concat(val)
-                } else {
-                    clone.option[name] = Object.assign({}, val, clone.option[name])
-                }
+            Object.entries(option).forEach(([name,val])=>{
+                if (isArray(val)) 
+                    option[name] = [...new Set(val)]
             })
 
-            return clone
+            return Optional(this.unwrapping(),option)
         },
         [Symbol.iterator]: function () {
             const values = (()=>{
@@ -179,7 +191,7 @@ const Optional = (_any, _option = {}) => {
 
         if (typeof funcName === "function") {
             const func = funcName
-            op[alias] = () => func(op, ...arguments)
+            op[alias] = function(){return func(op, ...arguments)}
         }
 
         if (typeof op[funcName] === "function") {
